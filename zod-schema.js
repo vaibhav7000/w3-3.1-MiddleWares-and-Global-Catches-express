@@ -33,11 +33,9 @@ function authencateUser(req, res, next) {
         pass
     }
 
-    console.log(finalObject);
 
     const result = userSchema.safeParse(finalObject);
 
-    console.log(result);
 
     if(!result.success) {
         res.status(403).json({
@@ -54,6 +52,52 @@ app.use(authencateUser); // will be called for every-route which are present bel
 app.get("/todos", function(req, res) {
     // already authenticated
     res.status(200).json(storage);
+})
+
+// using the coercion with the put method
+app.put("/todos/:id", function(req, res) {
+    const id = req.params.id;
+
+    // using parse
+    const schema = z.coerce.number(); // this will try to convert the given user-input into valid number
+
+    try {
+        const result = schema.parse(id);
+
+        res.status(200).send("updated")
+    } catch(err) {
+        // parse directly throws the error
+        if(err instanceof z.ZodError) {
+            console.log(err.issues);
+            // all error will be present inside the err.issues and err.name as zodError
+            res.status(411).json({
+                issues: err.issues,
+                name: err.name
+            })
+            return
+        }
+
+        throw err; // will be handle by the global catches
+    }
+})
+
+
+app.put("/todos/:id/safeParse", function(req, res) {
+    const id = req.params.id;
+
+    const schema = z.coerce.number();
+    const result = schema.safeParse(id); // when tries to convert the the given thing into number if fails  => throws NaN
+
+
+    if(!result.success) {
+        console.log(result.error.issues)
+        res.status(411).json({
+            issues: result.error.issues,
+            name: result.error.name
+        })
+    }
+
+    res.status(200).send("updated")
 })
 
 // gloabal-catches

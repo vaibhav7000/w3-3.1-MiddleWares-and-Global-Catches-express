@@ -40,6 +40,7 @@ app.post("/todos", function(req, res) {
     } catch(err) {
         // since there can be multiple error we want to detect the zodError
         if(err instanceof z.ZodError) {
+            console.log(err);
             console.log(err.issues); // all the issues related to user-validation will come here [{code: "", expected: "", recieved: "", path: [], message: ""}]
             res.status(411).json(err.issues); 
             return
@@ -106,3 +107,6 @@ app.use(function(req, res, next) {
 app.listen(port);
 
 // both the error object in safeParse and parse are same, belongs to the instance zodError with same properties as issues (array of all issue) + name
+
+// parse method directly provide us instance of the zodError as {issues: [], name: "zodError"}
+// safeParse method provides zodError if success: false, as result.error -> zodError with properties as name and issues
