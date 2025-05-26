@@ -123,5 +123,60 @@ app.get("/user", function(req, res) {
     res.status(200).send("welcome to the http server")
 })
 
+// isoDateTime validation using zod
+// iso is the international standard for representation of date and time. it has different format to represents the date and time and according to these formats JS has implemented it functionality
+// iso string by default represents UTC time / Z /GMT, but we can change that when providing the string
+// format 1. -> "YYYY-MM-DD", "YYYY-MM", "YYYY" (only date)
+// format 2. "YYYY-MM-DDTHH:MM:SSZ", "YYYY-MM-DDTHH:MM:SS+- set the time according to the time-zone"
+
+const isoDateAsUTCOnly = z.iso.datetime();
+const isoDateStringAnyTimeZone = z.iso.datetime({
+    offset: true
+})
+
+// iso date format (YYYY-MM-DD / YYYY / YYYY-MM)
+const normalIsoDateFormat = z.iso.date();
+
+// iso time (HH:MM:SS, HH -> 0 to 23, MM -> 0 to 59, SS -> 0 to 59)
+const isoTimeFormat = z.iso.time();
+
+
+
+
+app.get("/isoDateTimeUTCOnly", function(req, res) {
+    const date = req.body.date;
+
+    const result = isoDateAsUTCOnly.safeParse(date);
+
+    if(!result.success) {
+        res.status(411).json({
+            issues: result.error.issues,
+        })
+        return
+    }
+
+    const newDate = new Date(date);
+
+    console.log(newDate);
+
+    req.status(200).json({
+        newDate
+    })
+})
+
+app.get("/isoDateTimeAnyTime", function(req, res) {
+
+})
+
+app.get("/normalIsoDateFormat", function(req, res) {
+
+})
+
+app.get("/isoTimeFormat", function(req, res) {
+
+})
 
 app.listen(port);
+
+// in JS
+// Date.parse() is a static method that accepts a valid date string (ISO format) and returns the number of milliseconds from 1 jan 1970
